@@ -137,9 +137,26 @@ flights_slice_avg.loc[flights_slice_avg['dep_delay'] == flights_slice_avg['dep_d
 
 
 
+# #Question 6 Which date has the largest average arrival delay? pd slice 
+# with date and float
+#I created a smaller data table with only the date (Y/M/D) and departure delay since that's all that was specified.
+#I then changed the table to show the average for each day, instead of multiple entries.
+#I then calculated which date had the largest(max) arrival delay and printed out the column with the largest average.
+#On Jupyter I got this to work with an answer of 2013/3/8 and an average of 85.862155
 
 
+flights['date'] = pd.to_datetime(flights[['year', 'month', 'day']])
 
+#print(flights)
+
+flights_slice = pd.DataFrame({'date':flights['date'],'arr_delay':flights['arr_delay']})
+print(flights_slice)
+
+flights_slice_avg_arr = flights_slice.set_index('date').groupby(pd.Grouper(freq='d')).mean().dropna(how='all')
+print (flights_slice_avg_arr)
+#print(flights_slice_avg_arr['arr_delay'].max())
+
+flights_slice_avg_arr.loc[flights_slice_avg_arr['arr_delay'] == flights_slice_avg_arr['arr_delay'].max()]
 
 
 
