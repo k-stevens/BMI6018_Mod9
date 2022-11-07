@@ -1,0 +1,184 @@
+# # -*- coding: utf-8 -*-
+# #%% Libraries
+# import pandas as pd
+# import matplotlib.pyplot as plt
+# import numpy as np
+# #%% Importing Data
+# flights_data = pd.read_csv('flights.csv')
+# flights_data.head(10)
+# weather_data_pd = pd.read_csv('weather.csv')
+# weather_data_np = weather_data_pd.to_numpy()
+# #%% Pandas Data Filtering/Sorting Question Answering
+# #use flights_data
+# #Question 1 How many flights were there from JFK to SLC? Int
+# q_1
+# #Question 2 How many airlines fly to SLC? Should be int
+# q_2
+# #Question 3 What is the average arrival delay for flights to RDU? float
+# q_3
+# #Question 4 What proportion of flights to SEA come from the two NYC 
+# airports (LGA and JFK)?  float
+# q_4
+# #Question 5 Which date has the largest average depature delay? Pd slice 
+# with date and float
+# #please make date a column. Preferred format is 2013/1/1 (y/m/d)
+# q_5
+# #Question 6 Which date has the largest average arrival delay? pd slice 
+# with date and float
+# q_6
+# #Question 7 Which flight departing LGA or JFK in 2013 flew the fastest? pd 
+# slice with tailnumber and speed
+# #speed = distance/airtime
+# q_7
+# #Question 8 Replace all nans in the weather pd dataframe with 0s. Pd with 
+# no nans
+# q_8
+# #%% Numpy Data Filtering/Sorting Question Answering
+# #Use weather_data_np
+# #Question 9 How many observations were made in Feburary? Int
+# q_9
+# #Question 10 What was the mean for humidity in February? Float
+# q_10
+# #Question 11 What was the std for humidity in February? Float
+# q_11
+
+
+
+
+import pandas as pd
+
+weather = pd.read_csv(r'C:\Users\kisab\Downloads\data\weather.csv')
+
+flights = pd.read_csv(r'C:\Users\kisab\Downloads\data\flights.csv')
+
+
+
+# #Question 1 How many flights were there from JFK to SLC? Int
+# I interpreted this as individual flights with the origin was JFK and destination was SLC. On Jupyter, I got an answer of 2113
+
+flights_and = (flights['origin'] == 'JFK') & (flights['dest'] == 'SLC')
+print(flights_and.sum())
+
+
+
+
+
+#Question 2 How many airlines fly to SLC? Should be int
+#I interpreted this as airline meaning each unique carrier. So it shows all of the unique carriers that go to SLC
+#On Juputer, I got an answer of 2
+
+#flights_SLC = (flights['dest'] == 'SLC')
+
+mask=flights.dest == 'SLC'
+flights_SLC=flights[mask]
+#print(flights_SLC.carrier.unique())
+flight_unique= flights_SLC.carrier.unique()
+len(flight_unique)
+
+
+
+
+#Question 3 What is the average arrival delay for flights to RDU? float
+#Used a mask to show only flights with a destination of RDU and took the mean of the arrival delay
+#On Jupyter, I got an ansewr of 10.052380952380952
+
+mask=flights.dest == 'RDU'
+flights_RDU=flights[mask]
+#print(flights_RDU)
+flights_RDU['arr_delay'].mean()
+
+
+
+
+#Question 4 What proportion of flights to SEA come from the two NYC 
+# airports (LGA and JFK)?  float
+#I thought this meant of all of the total flights to SEA, what is the proportion from LGA and JFK combined
+#On Jupyter, I got an answer of 0.5332653581442773
+
+flights_JFK = (flights['origin'] == 'JFK') & (flights['dest'] == 'SEA')
+flights_LGA = (flights['origin'] == 'LGA') & (flights['dest'] == 'SEA')
+flights_SEA = (flights['dest'] == 'SEA')
+# flights_JFK_sum = flights_JFK.sum()
+# flights_LGA_sum = flights_LGA.sum()
+# flights_SEA_sum = flights_SEA.sum()
+
+# flights_LGA_JFK = flights_JFK_sum + flights_LGA_sum
+# total_proportion = flights_LGA_JFK / flights_SEA_sum
+
+
+total_proportion = (flights_LGA.sum() + flights_JFK.sum()) / flights_SEA.sum()
+print(total_proportion)
+
+
+
+
+
+
+
+
+# #Question 7 Which flight departing LGA or JFK in 2013 flew the fastest? pd 
+# slice with tailnumber and speed
+# #speed = distance/airtime
+#Created a new data table that included tail number(as an identifier), speed, and origin
+#I calculated speed using the distance and airtime
+#I then put a mask on it to only see flights with origins in LGA or JFK and found the max speed of those
+#On Jupyter, I got an answer: tail number:N666DN, speed:11.723077, origin:LGA
+
+flights_speed = flights.assign(speed=lambda x: x.distance / x.air_time)
+#print(flights_speed)
+
+flights_new_slice = pd.DataFrame({'tailnumber':flights_speed['tailnum'],'speed':flights_speed['speed'],'origin':flights_speed['origin']})
+print(flights_new_slice)
+
+speed_mask=((flights_new_slice.origin == 'JFK') | (flights_new_slice.origin == 'LGA'))
+
+flights_new = flights_new_slice[speed_mask]
+#print(flights_new)
+
+#print(flights_new['speed'].max())
+
+
+flights_new.loc[flights_new['speed'] == flights_new['speed'].max()]
+
+
+
+
+
+#Question 8 Replace all nans in the weather pd dataframe with 0s. Pd with 
+# no nans
+#I was successfully able to get it to work with no nans in Jupyter
+
+weather.fillna(0)
+
+
+
+
+#Question 9 How many observations were made in Feburary? Int
+#I set the month = '2' for Frebruary then summed the entries
+#On Jupyter, I got an answer of 671
+
+weather_feb = (weather['month'] == 2.0)
+print(weather_feb.sum())
+
+
+
+#Question 10 What was the mean for humidity in February? Float
+#I created a mask so you would only see a month of '2', then found the mean humidity once the mask was on
+#On Jupyter, I got an answer of 62.918152011922515
+
+
+mask_feb=weather.month == 2.0
+weather_feb=weather[mask_feb]
+#print(weather_feb)
+weather_feb['humid'].mean()
+
+
+
+#Question 11 What was the std for humidity in February? Float
+#I created a mask so you would only see a month of '2', then found the std deviation for humidity once the mask was on
+#On Jupyter, I got an answer of 20.352072009682594
+
+mask_feb=weather.month == 2.0
+weather_feb=weather[mask_feb]
+#print(weather_feb)
+weather_feb['humid'].std()
